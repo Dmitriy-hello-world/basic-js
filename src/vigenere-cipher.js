@@ -20,12 +20,51 @@ import { NotImplementedError } from '../extensions/index.js';
  * 
  */
 export default class VigenereCipheringMachine {
-  encrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+  constructor(direct = true) {
+    this.direct = direct;
   }
-  decrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
+  symCode(symbol) {
+    return symbol.charCodeAt(0) - 'A'.charCodeAt(0);
+  }
+  shift(symbol, length) {
+      let cod = this.symCode(symbol);
+      return String.fromCharCode((cod + length) % 26 + 'A'.charCodeAt(0));
+  }
+  encrypt(str, key) {
+    if (!str) {
+        throw new Error(`Incorrect arguments!`);
+    }
+    return this.getCrypt(str, key, false);
+  }
+  decrypt(str, key) {
+    if (!str) {
+      throw new Error(`Incorrect arguments!`);
+    }
+    return this.getCrypt(str, key, true);
+  }
+  getCrypt(string, key, isDec) {
+    if (string == undefined || key == undefined) {
+        throw new Error(`Incorrect arguments!`);
+    }
+    string = string.toUpperCase();
+    key = key.toUpperCase();
+    let arr = [];
+    let coded = 0;
+    for(let i = 0; i < string.length; ++i) {
+        if(string[i] >= 'A' && string[i] <= 'Z') {
+            if(isDec) {
+                arr.push(this.shift(string[i], 26 - this.symCode(key[coded % key.length])));
+            } else {
+                arr.push(this.shift(string[i], this.symCode(key[coded % key.length])));
+            }
+            coded++;
+        } else {
+            arr.push(string[i]);
+        }
+    }
+    if(!this.direct) {
+        arr.reverse();
+    }
+    return arr.join('');
   }
 }
